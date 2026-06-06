@@ -13,3 +13,8 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# FlexiEle browser-MCP session state (contains live auth tokens - never commit)
+.flexiele/
+flexiele-session/
+storage-state.json
