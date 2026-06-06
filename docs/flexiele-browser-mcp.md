@@ -13,12 +13,14 @@ session.
 
 ## Why headless + storage state (read this first)
 
-FlexiEle logs in through **Microsoft Azure AD SSO** (often with MFA). In a
-headless cloud browser there is **no interactive way for you to type your
-password** — there is no window to click. The only practical way to get an
-authenticated session into the remote browser is to **capture a logged-in
-session on your own machine and inject it** as Playwright "storage state"
-(cookies + localStorage). That is what `FLEXIELE_STORAGE_STATE` below is for.
+This is **Exotel's** FlexiEle tenant, and the only employee login method is
+**"Login with Google" (Google SSO)** — there is no password form. In a headless
+cloud browser there is **no interactive way to complete that Google sign-in**,
+and automating a Google login is unreliable, against Google's policy, and trips
+account-security alerts. So the only practical way to get an authenticated
+session into the remote browser is to **capture a logged-in session on your own
+machine and inject it** as Playwright "storage state" (cookies + localStorage).
+That is what `FLEXIELE_STORAGE_STATE` below is for.
 
 These SSO sessions are **short-lived** (often ~1 hour) and may be device-bound,
 so expect to refresh the storage state periodically. This path is inherently a
@@ -70,32 +72,14 @@ cdn.playwright.dev
 ### 3. `FLEXIELE_STORAGE_STATE` environment variable
 
 This holds your logged-in FlexiEle session as JSON. Generate it **on your local
-machine**:
+machine** with the bundled helper, which opens a real browser so you can click
+**"Login with Google"**:
 
 ```bash
-# Run locally, where you can complete the Microsoft login interactively.
-npx -y @playwright/mcp@latest \
-  --browser=chrome \
-  --save-session \
-  --output-dir ./flexiele-session
-# ...drive it to log in to https://feexotel.flexiele.com/ROL0000001/home-page,
-# then stop. The storage state is written under ./flexiele-session.
-```
-
-Alternatively, capture it with a tiny Playwright script:
-
-```js
-// save-state.js  ->  node save-state.js
-const { chromium } = require('playwright');
-(async () => {
-  const ctx = await (await chromium.launch({ headless: false })).newContext();
-  const page = await ctx.newPage();
-  await page.goto('https://feexotel.flexiele.com/ROL0000001/home-page');
-  console.log('Log in, then press Enter here...');
-  await new Promise(r => process.stdin.once('data', r));
-  await ctx.storageState({ path: 'storage-state.json' });
-  process.exit(0);
-})();
+npm i playwright            # once
+node scripts/capture-flexiele-session.js
+# A browser opens -> click "Login with Google", finish sign-in, wait for the
+# dashboard, then press Enter. It writes ./storage-state.json.
 ```
 
 Then copy the **entire contents** of `storage-state.json` into the
