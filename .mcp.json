@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "browser": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--headless",
+        "--browser=chromium",
+        "--isolated",
+        "--storage-state=${FLEXIELE_STORAGE_STATE_FILE:-/root/.flexiele/storage-state.json}",
+        "--caps=vision,pdf",
+        "--allowed-origins=https://feexotel.flexiele.com;https://accounts.google.com;https://accounts.youtube.com;https://login.microsoftonline.com;https://fonts.googleapis.com;https://fonts.gstatic.com"
+      ]
+    }
+  }
+}
